@@ -1,0 +1,8 @@
+*.class
+target/
+.idea/
+.vscode/
+
+*.temp
+*.log
+*.cache/
