@@ -43,7 +43,7 @@ public class PartitionFlowDriver {
 
         //8 设置输入输出路径
         FileInputFormat.setInputPaths(job, new Path("D:\\data\\partition\\input"));
-        FileOutputFormat.setOutputPath(job, new Path("D:\\data\\partition\\output3"));
+        FileOutputFormat.setOutputPath(job, new Path("D:\\data\\partition\\output5"));
 
         //9 提交Job
         boolean b = job.waitForCompletion(true);
