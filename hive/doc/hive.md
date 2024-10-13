@@ -518,9 +518,65 @@ import table student2 from '/user/hive/warehouse/export/student';
 
 
 
+## 函数
+
+### 炸裂函数
+
+![image-20241013185548063](images\image-20241013185548063.png)
 
 
 
+
+
+
+
+![image-20241013185715196](images\image-20241013185715196.png)
+
+
+
+
+
+
+
+
+
+![image-20241013185820074](images\image-20241013185820074.png)
+
+
+
+
+
+![image-20241013185916095](images\image-20241013185916095.png)
+
+
+
+
+
+![image-20241013190043927](images\image-20241013190043927.png)
+
+
+
+![image-20241013190149865](images\image-20241013190149865.png)
+
+
+
+![image-20241013190241057](images\image-20241013190241057.png)
+
+
+
+
+
+
+
+### 窗口函数
+
+
+
+### 自定义函数
+
+
+
+### 自定义UDF函数
 
 
 
