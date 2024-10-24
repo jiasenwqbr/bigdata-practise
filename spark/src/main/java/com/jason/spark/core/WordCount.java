@@ -45,12 +45,13 @@ public class WordCount {
         });
 
         // 6.合并相同的单词
-        JavaPairRDD<String, Integer> javaPairRDD  = stringIntegerJavaPairRDD.reduceByKey(new Function2<Integer, Integer, Integer>() {
-            @Override
-            public Integer call(Integer v1, Integer v2) throws Exception {
-                return v1 + v2;
-            }
-        });
+//        JavaPairRDD<String, Integer> javaPairRDD  = stringIntegerJavaPairRDD.reduceByKey(new Function2<Integer, Integer, Integer>() {
+//            @Override
+//            public Integer call(Integer v1, Integer v2) throws Exception {
+//                return v1 + v2;
+//            }
+//        });
+         JavaPairRDD<String, Integer> javaPairRDD = stringIntegerJavaPairRDD.reduceByKey((a, b) -> a + b);
 
         // 7.将数据聚合结果采集到内存中
         // javaPairRDD.collect().forEach(System.out::println);
