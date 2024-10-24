@@ -15,8 +15,12 @@ public class CreateRDDFromFilesJava {
     public static void main(String[] args) {
         SparkConf sparkConf = new SparkConf().setAppName("create RDD from files").setMaster("local[*]");
         JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
-        JavaRDD<String> lineJavaRDD = javaSparkContext.textFile("datas/wordcount/");
+        JavaRDD<String> lineJavaRDD = javaSparkContext.textFile("datas/wordcount/",6);
+
         JavaRDD<String> wordJavaRDD = lineJavaRDD.flatMap(line -> Arrays.asList(line.split(" ")).iterator());
+
         wordJavaRDD.collect().forEach(System.out::println);
+        wordJavaRDD.saveAsTextFile("output");
+        javaSparkContext.stop();
     }
 }
