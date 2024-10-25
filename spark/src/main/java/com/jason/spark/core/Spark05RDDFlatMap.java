@@ -24,25 +24,28 @@ public class Spark05RDDFlatMap {
         list.add(list2);
         list.add(list3);
 
-        JavaRDD<List<List<Integer>>> rdd = sc.parallelize(Collections.singletonList(list), 2);
-
-        JavaRDD<Integer> objectJavaRDD = rdd.flatMap(new FlatMapFunction<List<List<Integer>>, Integer>() {
-            List<Integer> li = new ArrayList<>();
+//        JavaRDD<List<List<Integer>>> rdd = sc.parallelize(Collections.singletonList(list), 2);
+//
+//        JavaRDD<Integer> objectJavaRDD = rdd.flatMap(new FlatMapFunction<List<List<Integer>>, Integer>() {
+//            List<Integer> li = new ArrayList<>();
+//            @Override
+//            public Iterator<Integer> call(List<List<Integer>> lists) throws Exception {
+//                for (List<Integer> l : lists){
+//                    for (Integer integer : l){
+//                        li.add(integer);
+//                    }
+//                }
+//                return li.iterator();
+//            }
+//        });
+        JavaRDD<List<Integer>> parallelize = sc.parallelize(list, 2);
+        JavaRDD<Integer> integerJavaRDD = parallelize.flatMap(new FlatMapFunction<List<Integer>, Integer>() {
             @Override
-            public Iterator<Integer> call(List<List<Integer>> lists) throws Exception {
-                for (List<Integer> l : lists){
-                    for (Integer integer : l){
-                        li.add(integer);
-                    }
-                }
-                return li.iterator();
+            public Iterator<Integer> call(List<Integer> integers) throws Exception {
+                return integers.iterator();
             }
         });
-
-        objectJavaRDD.collect().forEach(System.out::println);
+        integerJavaRDD.collect().forEach(System.out::println);
         sc.stop();
-
-
-
     }
 }
