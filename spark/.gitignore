@@ -37,5 +37,5 @@ build/
 ### Mac OS ###
 .DS_Store
 output
-output1
+datas/output1
 datas
