@@ -1,4 +1,4 @@
-package com.jason.bean;
+package com.jason.spark.core.bean;
 
 /**
  * @Description:

@@ -1,6 +1,6 @@
-package com.jason.serializable;
+package com.jason.spark.core.serializable;
 
-import com.jason.bean.User;
+import com.jason.spark.core.bean.User;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -10,13 +10,16 @@ import java.util.Arrays;
 /**
  * @Description:
  * @author: 贾森
- * @date: 2024年10月28日 17:08
+ * @date: 2024年10月28日 17:15
  */
-public class Test01_Ser {
-    public static void main(String[] args) {
+public class Test02_Kryo {
+    public static void main(String[] args) throws ClassNotFoundException {
         // 1.创建配置对象
-        SparkConf conf = new SparkConf().setMaster("local[*]").setAppName("sparkCore");
-
+        SparkConf conf = new SparkConf().setMaster("local[*]").setAppName("sparkCore")
+                // 替换默认的序列化机制
+                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+                // 注册需要使用kryo序列化的自定义类
+                .registerKryoClasses(new Class[]{Class.forName("com.jason.spark.core.bean.User")});
         // 2. 创建sparkContext
         JavaSparkContext sc = new JavaSparkContext(conf);
 
@@ -30,7 +33,5 @@ public class Test01_Ser {
 
         // 4. 关闭sc
         sc.stop();
-
-
     }
 }

@@ -1,4 +1,4 @@
-package com.jason.spark.core;
+package com.jason.spark.core.rddtest;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
