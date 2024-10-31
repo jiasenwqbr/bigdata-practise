@@ -2,9 +2,6 @@ package com.jason.spark.sql;
 
 import lombok.Data;
 import org.apache.spark.SparkConf;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.*;
 import org.apache.spark.sql.expressions.Aggregator;
 
@@ -12,30 +9,19 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import static org.apache.spark.sql.functions.udaf;
 
-/**
- * @Description:
- * @author: 贾森
- * @date: 2024年10月30日 21:36
- */
-
-    /*      （1）查询出来所有的点击记录，并与city_info表连接，得到每个城市所在的地区，与 Product_info表连接得到商品名称。
-            （2）按照地区和商品名称分组，统计出每个商品在每个地区的总点击次数。
-            （3）每个地区内按照点击次数降序排列。
-            （4）只取前三名，并把结果保存在数据库中。
-            （5）城市备注需要自定义UDAF函数。
-    */
 public class Test01_Top3 {
     public static void main(String[] args) {
-        System.setProperty("HADOOP_USER_NAME","jason");
+
         // 1. 创建sparkConf配置对象
         SparkConf conf = new SparkConf().setAppName("sql").setMaster("local[*]");
 
         // 2. 创建sparkSession连接对象
         SparkSession spark = SparkSession.builder().enableHiveSupport().config(conf).getOrCreate();
-        // spark.sql("show tables").show();
+
         // 3. 编写代码
         // 将3个表格数据join在一起
         Dataset<Row> t1DS = spark.sql("select \n" +
@@ -51,10 +37,9 @@ public class Test01_Top3 {
                 "join\n" +
                 "\tproduct_info p\n" +
                 "on\n" +
-                "\tu.click_product_id=p.product_id limit 100");
+                "\tu.click_product_id=p.product_id");
 
         t1DS.createOrReplaceTempView("t1");
-        // t1DS.show();
 
         spark.udf().register("cityMark",udaf(new CityMark(),Encoders.STRING()));
 
@@ -68,8 +53,10 @@ public class Test01_Top3 {
                 "\tt1\n" +
                 "group by\n" +
                 "\tarea,product_name");
-        // t2ds.show();
+
+//        t2ds.show(false);
         t2ds.createOrReplaceTempView("t2");
+
         // 对区域内产品点击的次数进行排序  找出区域内的top3
         spark.sql("select\n" +
                 "\tarea,\n" +
@@ -78,6 +65,7 @@ public class Test01_Top3 {
                 "\trank() over (partition by area order by counts desc) rk\n" +
                 "from \n" +
                 "\tt2").createOrReplaceTempView("t3");
+
         // 使用过滤  取出区域内的top3
         spark.sql("select\n" +
                 "\tarea,\n" +
@@ -88,9 +76,8 @@ public class Test01_Top3 {
                 "where \n" +
                 "\trk < 4").show(50,false);
 
+        // 4. 关闭sparkSession
         spark.close();
-
-
     }
 
     @Data
@@ -108,6 +95,7 @@ public class Test01_Top3 {
     }
 
     public static class CityMark extends Aggregator<String, Buffer, String> {
+
         public static class CityCount {
             public String name;
             public Long count;
@@ -116,9 +104,13 @@ public class Test01_Top3 {
                 this.name = name;
                 this.count = count;
             }
+
             public CityCount() {
             }
+
+
         }
+
         public static class CompareCityCount implements Comparator<CityCount> {
 
             /**
@@ -137,8 +129,9 @@ public class Test01_Top3 {
 
         @Override
         public Buffer zero() {
-            return new Buffer(0L,new HashMap<String,Long>());
+            return new Buffer(0L, new HashMap<String, Long>());
         }
+
         /**
          * 分区内的预聚合
          *
@@ -152,6 +145,7 @@ public class Test01_Top3 {
             // 如果map中已经有当前城市  次数+1
             // 如果map中没有当前城市    0+1
             hashMap.put(a, hashMap.getOrDefault(a, 0L) + 1);
+
             b.setTotalCount(b.getTotalCount() + 1L);
             return b;
         }
@@ -166,6 +160,7 @@ public class Test01_Top3 {
         @Override
         public Buffer merge(Buffer b1, Buffer b2) {
             b1.setTotalCount(b1.getTotalCount() + b2.getTotalCount());
+
             HashMap<String, Long> map1 = b1.getMap();
             HashMap<String, Long> map2 = b2.getMap();
             // 将map2中的数据放入合并到map1
@@ -175,8 +170,10 @@ public class Test01_Top3 {
                     map1.put(s, aLong + map1.getOrDefault(s, 0L));
                 }
             });
+
             return b1;
         }
+
         /**
          * map => {(上海,200),(北京,100),(天津,300)}
          *
@@ -207,6 +204,7 @@ public class Test01_Top3 {
             while (!(cityCounts.size() == 0) && resultMark.size() < 2) {
                 CityCount cityCount = cityCounts.get(0);
                 resultMark.add(cityCount.name + String.format("%.2f",cityCount.count.doubleValue() / totalCount * 100) + "%");
+                sum = sum + cityCount.count.doubleValue()/ totalCount * 100;
                 cityCounts.remove(0);
             }
 
@@ -233,5 +231,4 @@ public class Test01_Top3 {
             return Encoders.STRING();
         }
     }
-
 }
