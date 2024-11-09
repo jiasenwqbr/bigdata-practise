@@ -6,6 +6,11 @@ import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * @Description:
  * @author: 贾森
@@ -29,13 +34,23 @@ public class TransMap {
 
         SingleOutputStreamOperator<String> map1 = stream.map(water -> water.toString());
         map1.print();
+        // ?????????????????????????????????
+        SingleOutputStreamOperator<Map<String, WaterSensor>> map4 = stream.map(new MapFunction<WaterSensor, Map<String, WaterSensor>>() {
+            @Override
+            public Map<String, WaterSensor> map(WaterSensor water) throws Exception {
+                Map<String, WaterSensor> m = new LinkedHashMap<>();
+                m.put(water.getId(), water);
+                return m;
+            }
+        });
+        map4.print();
         // 方式二：传入MapFunction的实现类
         // stream.map(new UserMap()).print();
 
-        SingleOutputStreamOperator<String> map2 = stream.map(new UserMap());
-        map2.print();
-
-
+        /*SingleOutputStreamOperator<String> map2 = stream.map(new UserMap());
+        map2.print();*/
+        SingleOutputStreamOperator<Map<String, WaterSensor>> map3 = stream.map(new UserMap2());
+        map3.print();
         env.execute();
 
 
@@ -45,6 +60,16 @@ public class TransMap {
         @Override
         public String map(WaterSensor e) throws Exception {
             return e.id;
+        }
+    }
+
+    public static class UserMap2 implements  MapFunction<WaterSensor,Map<String, WaterSensor>> {
+
+        @Override
+        public Map<String, WaterSensor> map(WaterSensor water) throws Exception {
+            Map<String, WaterSensor> m = new LinkedHashMap<>();
+            m.put(water.getId(), water);
+            return m;
         }
     }
 }
