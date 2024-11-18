@@ -16,6 +16,7 @@ public class MethodRef1 {
                         new Student("宋青书", "男")
                 )
                 .filter(util::isMale)
+                //.filter((stu) -> util.isMale(stu))
                 //.map(stu->stu.name)
                 .map(Student::name)
                 .forEach(
